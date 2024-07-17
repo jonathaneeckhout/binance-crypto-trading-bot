@@ -2,8 +2,9 @@ import logging
 import argparse
 import configparser
 from trader.connector import Connector
-
+from trader.wallet import Wallet
 from trader.strategies.gridstrategy import GridStrategy
+from trader.strategies.intervalstrategy import IntervalStrategy
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -86,7 +87,37 @@ def main() -> None:
         symbol=config.get("binance", "symbol"),
     )
 
-    grid_strategy = GridStrategy()
+    wallet = Wallet(
+        api_url=config.get("binance", "api_url"),
+        api_key=args.key,
+        api_secret=args.secret,
+    )
+
+    if config.getboolean("grid_strategy", "enable"):
+        # Initialize the grid strategy
+        grid_strategy = GridStrategy(
+            symbol=config.get("binance", "symbol"),
+            grid_reference_price=config.getfloat("grid_strategy", "reference_price"),
+            grid_size=config.getint("grid_strategy", "size"),
+            grid_spacing=config.getfloat("grid_strategy", "spacing"),
+            grid_amount_per_trade=config.getfloat("grid_strategy", "amount_per_trade"),
+            wallet=wallet,
+        )
+
+        # Register the tick callback
+        connector.register_tick_callback(grid_strategy.tick_callback)
+
+    if config.getboolean("interval_strategy", "enable"):
+        # Initialize the interval strategy
+        interval_strategy = IntervalStrategy(
+            symbol=config.get("binance", "symbol"),
+            interval_time=config.getint("interval_strategy", "interval_time"),
+            amount_per_trade=config.getfloat("interval_strategy", "amount_per_trade"),
+            wallet=wallet,
+        )
+
+        # Register the tick callback
+        connector.register_tick_callback(interval_strategy.tick_callback)
 
     # Start the connector
     connector.start()

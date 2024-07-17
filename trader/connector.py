@@ -91,9 +91,11 @@ class Connector:
             callback(message)
 
     def _close_handler(self) -> None:
+        logging.info("Connection closed")
         self._retry_connection()
 
     def _error_handler(self, _, error) -> None:
+        logging.error(f"Error occurred: {error}")
         self._retry_connection()
 
     def _retry_connection(self) -> None:
