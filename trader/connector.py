@@ -1,6 +1,7 @@
 import logging
 import json
 import time
+from typing import Callable
 
 from binance.websocket.spot.websocket_stream import (
     SpotWebsocketStreamClient,
@@ -13,6 +14,8 @@ class Connector:
     def __init__(self, stream_url: str, symbol: str) -> None:
         self.__stream_url = stream_url
         self.__symbol = symbol
+
+        self.__tick_callbacks = []
 
     @staticmethod
     def translate_ticker_data(data: dict) -> dict:
@@ -59,6 +62,9 @@ class Connector:
 
         self.stream_client.ticker(symbol=self.__symbol)
 
+    def register_tick_callback(self, callback: Callable[[object], None]) -> None:
+        self.__tick_callbacks.append(callback)
+
     def _message_handler(self, _, message: str) -> None:
         try:
             # Attempt to parse the incoming message as JSON
@@ -73,13 +79,16 @@ class Connector:
             # Handle different event types from the JSON message
             match json_message["e"]:
                 case "24hrTicker":
-                    # TODO: handle the message
-                    pass
+                    self._trigger_tick_callbacks(json_message)
                 case _:
                     logging.info("Unknown event type")
         except KeyError:
             # If the event type key is missing, return silently
             return
+
+    def _trigger_tick_callbacks(self, message: object) -> None:
+        for callback in self.__tick_callbacks:
+            callback(message)
 
     def _close_handler(self) -> None:
         self._retry_connection()

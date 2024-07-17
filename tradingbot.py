@@ -3,6 +3,8 @@ import argparse
 import configparser
 from trader.connector import Connector
 
+from trader.strategies.gridstrategy import GridStrategy
+
 
 def parse_arguments() -> argparse.Namespace:
     """
@@ -83,6 +85,8 @@ def main() -> None:
         stream_url=config.get("binance", "stream_url"),
         symbol=config.get("binance", "symbol"),
     )
+
+    grid_strategy = GridStrategy()
 
     # Start the connector
     connector.start()
