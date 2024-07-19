@@ -1,3 +1,5 @@
+import logging
+
 from trader.wallet import Wallet
 
 
@@ -58,11 +60,13 @@ class GridStrategy:
     def _process_order(self, order: Order, price: float) -> None:
         # Handle buy and sell logic for an order
         if not order.running and price <= order.buy_price:
+            logging.info("Placing buy order")
             self.__wallet.place_market_buy_order(
                 self.__symbol, self.__grid_amount_per_trade
             )
             order.running = True
 
         elif order.running and price >= order.sell_price:
+            logging.info("Placing sell order")
             self.__wallet.place_market_sell_order(self.__symbol, order.crypto_holdings)
             order.running = False

@@ -9,13 +9,13 @@ class Wallet:
         self.__client = Spot(api_key=api_key, api_secret=api_secret, base_url=api_url)
 
     def place_market_buy_order(self, symbol: str, quantity: float) -> float:
-        logging.info(f"Placing buy order for {symbol} with {quantity} base currency ")
+        logging.info(f"Placing buy order for {symbol} with {quantity}")
 
         params = {
             "symbol": symbol,
             "side": "BUY",
             "type": "MARKET",
-            "quoteOrderQty": quantity,
+            "quantity": quantity,
         }
 
         try:
@@ -23,7 +23,7 @@ class Wallet:
             logging.debug(response)
             if response["status"] == "FILLED":
                 logging.info(
-                    f"Order filled for {response['executedQty']} {symbol} traded currency"
+                    f"Order filled for {response['executedQty']} {symbol}"
                 )
 
                 return float(
@@ -41,7 +41,7 @@ class Wallet:
         return 0.0
 
     def place_market_sell_order(self, symbol: str, quantity: float) -> float:
-        logging.info(f"Placing sell order for traded currency {quantity} {symbol}")
+        logging.info(f"Placing sell order for {quantity} {symbol}")
 
         params = {
             "symbol": symbol,
@@ -57,7 +57,7 @@ class Wallet:
             if response["status"] == "FILLED":
 
                 logging.info(
-                    f"Order filled for {response['executedQty']} {symbol} base currency"
+                    f"Order filled for {response['executedQty']} {symbol}"
                 )
 
                 return float(

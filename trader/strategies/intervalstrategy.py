@@ -1,3 +1,5 @@
+import logging
+
 from trader.wallet import Wallet
 
 
@@ -7,7 +9,7 @@ class IntervalStrategy:
     ):
         self.__symbol = symbol  # Trading symbol
         self.__interval_time = interval_time  # Interval time in miliseconds
-        self.__amount_per_trade = amount_per_trade  # Amount per tradei
+        self.__amount_per_trade = amount_per_trade  # Amount per trade
         self.__last_trade_time = 0  # Last trade time in miliseconds
         self.__wallet = wallet  # Wallet object
         self.__crypto_holdings = 0.0  # Amount of cryptocurrency held
@@ -24,10 +26,12 @@ class IntervalStrategy:
             self.__last_trade_time = time
 
             if self.__crypto_holdings == 0:
+                logging.info("Placing buy order")
                 self.__crypto_holdings = self.__wallet.place_market_buy_order(
                     self.__symbol, self.__amount_per_trade
                 )
             else:
+                logging.info("Placing sell order")
                 if (
                     self.__wallet.place_market_sell_order(
                         self.__symbol, self.__crypto_holdings

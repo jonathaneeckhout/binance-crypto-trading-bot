@@ -94,6 +94,8 @@ def main() -> None:
     )
 
     if config.getboolean("grid_strategy", "enable"):
+        logging.info("GridStrategy is enabled")
+
         # Initialize the grid strategy
         grid_strategy = GridStrategy(
             symbol=config.get("binance", "symbol"),
@@ -106,8 +108,12 @@ def main() -> None:
 
         # Register the tick callback
         connector.register_tick_callback(grid_strategy.tick_callback)
+    else:
+        logging.info("GridStrategy is not enabled")
 
     if config.getboolean("interval_strategy", "enable"):
+        logging.info("IntervalStrategy is enabled")
+
         # Initialize the interval strategy
         interval_strategy = IntervalStrategy(
             symbol=config.get("binance", "symbol"),
@@ -118,6 +124,8 @@ def main() -> None:
 
         # Register the tick callback
         connector.register_tick_callback(interval_strategy.tick_callback)
+    else:
+        logging.info("IntervalStrategy is not enabled")
 
     # Start the connector
     connector.start()
